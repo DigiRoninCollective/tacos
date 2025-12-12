@@ -1,0 +1,9 @@
+{
+  "name": "Neon Covenant",
+  "symbol": "NEON",
+  "gatingToken": "Neon Access Pass",
+  "description": "A token-gated experience for builders who move between Solana sanctuaries.",
+  "mintAddress": "FG7bZ9b27h6X1mW3qtxqVX6rCK2VbH5pLr9dz5sR4kZK",
+  "maxSupply": "5,000",
+  "mediaUrl": "https://player.vimeo.com/video/76979871?h=755b4edb4f"
+}

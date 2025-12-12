@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[plugins]
+  [[plugins]]
+    package = "@netlify/plugin-nextjs"
+
+[context.production.environment]
+  NEXT_PUBLIC_SUPABASE_URL = "$NEXT_PUBLIC_SUPABASE_URL"
+  NEXT_PUBLIC_SUPABASE_ANON_KEY = "$NEXT_PUBLIC_SUPABASE_ANON_KEY"
+  SUPABASE_URL = "$SUPABASE_URL"
+  SUPABASE_SERVICE_KEY = "$SUPABASE_SERVICE_KEY"
+  GATING_TOKEN_MINT = "$GATING_TOKEN_MINT"
+  SOLANA_RPC_URL = "$SOLANA_RPC_URL"
+  MIN_HOLD_AMOUNT = "$MIN_HOLD_AMOUNT"

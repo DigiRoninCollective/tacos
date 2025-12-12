@@ -1,0 +1,171 @@
+@import "tailwindcss";
+
+:root {
+  --background: #030012;
+  --foreground: #f2f7ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #4b00ff 0%, #1b0433 45%, #030012 100%);
+  color: var(--foreground);
+  font-family: "Geist", "Inter", system-ui, sans-serif;
+  padding-bottom: 8rem;
+}
+
+/* Page banner style (top of page) */
+.page-banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 12rem;
+  object-fit: cover;
+  object-position: top center;
+  opacity: 0.95;
+  filter: saturate(1.05) contrast(0.98);
+}
+
+::selection {
+  background: #2ce1ff;
+  color: #030012;
+}
+
+/* Neon / cyberpunk hero styles */
+.hero {
+  position: relative;
+  padding: 4rem 1.25rem;
+  background: linear-gradient(180deg, rgba(59,0,255,0.06) 0%, rgba(4,2,20,0.6) 40%);
+  overflow: hidden;
+}
+
+.hero .hero-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.neon-title {
+  font-size: clamp(2rem, 5vw, 4.2rem);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  font-weight: 800;
+  color: #ffef5a;
+  text-shadow:
+    0 0 18px rgba(255,239,90,0.12),
+    0 6px 30px rgba(59,0,255,0.14),
+    0 0 2px rgba(204,0,255,0.9),
+    0 0 10px rgba(2,234,255,0.12);
+  display: block;
+}
+
+.tacos-tag {
+  display: inline-block;
+  background: linear-gradient(90deg,#190036,#33004a);
+  color: #ffd868;
+  padding: 0.35rem 0.6rem;
+  border-radius: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  box-shadow: 0 6px 22px rgba(59,0,255,0.18);
+}
+
+.contract-bar {
+  margin-top: 1rem;
+  background: rgba(6,6,8,0.85);
+  color: #ffeb66;
+  padding: 0.7rem 1rem;
+  border-radius: 6px;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 6px 40px rgba(255,200,60,0.06) inset, 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.legend {
+  margin-top: 1.25rem;
+  text-align: center;
+}
+.legend .subtitle {
+  font-weight: 800;
+  color: #ffd868;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.35rem;
+}
+.legend p {
+  color: rgba(255,255,255,0.9);
+  font-size: 1.05rem;
+}
+
+.stats-pill {
+  margin: 1.25rem auto 0;
+  display: inline-block;
+  background: linear-gradient(90deg,#ffd94f,#f7c553 40%,#ffd94f);
+  color: #0b0b0b;
+  padding: 1rem 2.25rem;
+  border-radius: 18px;
+  font-weight: 800;
+  box-shadow: 0 10px 40px rgba(255,200,60,0.12), 0 2px 8px rgba(0,0,0,0.4);
+}
+.stats-pill .stat-row { display:flex; gap:2.5rem; align-items:center; }
+.stats-pill .stat { font-size:0.98rem; }
+
+.neon-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(transparent, transparent 24px, rgba(255,255,255,0.02) 25px),
+    linear-gradient(180deg, rgba(2,8,32,0.12), transparent 30%);
+  mix-blend-mode: screen;
+  opacity: 0.9;
+  pointer-events: none;
+  transform: translateY(0);
+}
+
+/* banner image (pulled from /public path) */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url('/tacosbanner6-18-54.png');
+  background-position: top center;
+  background-size: cover;
+  opacity: 0.28;
+  filter: saturate(1.1) contrast(0.95) blur(0.8px);
+  z-index: -2;
+  display: block;
+  pointer-events: none;
+}
+
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin-top: 2rem;
+}
+.grid-thumb {
+  aspect-ratio: 1 / 1;
+  border-radius: 14px;
+  overflow: hidden;
+  background: linear-gradient(180deg,#140025 0%, #050010 60%);
+  border: 2px solid rgba(255,255,255,0.06);
+  box-shadow: 0 18px 60px rgba(20,0,80,0.45), 0 6px 18px rgba(0,0,0,0.6) inset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.grid-thumb .fake-cover {
+  width: 92%;
+  height: 92%;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(0,0,0,0.35)),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 12px);
+  display:flex;align-items:center;justify-content:center; color:#ffd; font-weight:700;
+  text-align:center; padding:1rem;
+}
+
+@media (max-width: 640px) {
+  .media-grid { grid-template-columns: 1fr; }
+  .stats-pill { padding: 0.9rem 1rem; }
+}
