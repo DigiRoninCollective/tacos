@@ -53,6 +53,14 @@ export async function GET() {
       );
     }
 
+    const supabaseUrl = process.env.SUPABASE_URL;
+    if (!supabaseUrl || !supabaseUrl.startsWith('http')) {
+      return NextResponse.json(
+        { error: 'Missing or invalid Supabase URL env var (SUPABASE_URL). Ensure it includes https://your-project-ref.supabase.co' },
+        { status: 500 }
+      );
+    }
+
     // Fetch recent messages (limit 50)
     const { data, error } = await supabaseServer
       .from("messages")
@@ -114,9 +122,16 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
-    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
+    const supabaseUrl = process.env.SUPABASE_URL;
+    if (!supabaseUrl || !supabaseUrl.startsWith('http')) {
       return NextResponse.json(
-        { error: "Supabase not configured (SUPABASE_URL or SUPABASE_SERVICE_KEY missing)" },
+        { error: 'Missing or invalid Supabase URL env var (SUPABASE_URL). Ensure it includes https://your-project-ref.supabase.co' },
+        { status: 500 }
+      );
+    }
+    if (!process.env.SUPABASE_SERVICE_KEY) {
+      return NextResponse.json(
+        { error: "Supabase not configured (SUPABASE_SERVICE_KEY missing)" },
         { status: 500 }
       );
     }
