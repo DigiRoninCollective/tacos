@@ -25,7 +25,7 @@ import { NextRequest, NextResponse } from "next/server";
  *   count: number,
  * }
  */
-import { supabaseServer } from "@/lib/supabaseServer";
+import { getSupabaseServer } from "@/lib/supabaseServer";
 import { Connection, PublicKey } from "@solana/web3.js";
 
 interface SupabaseMessage {
@@ -42,27 +42,12 @@ interface MessageResponse {
   walletAddress: string;
   text: string;
   timestamp: string;
-}
+  }
 
 export async function GET() {
   try {
-    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
-      return NextResponse.json(
-        { error: "Supabase not configured (SUPABASE_URL or SUPABASE_SERVICE_KEY missing)" },
-        { status: 500 }
-      );
-    }
-
-    const supabaseUrl = process.env.SUPABASE_URL;
-    if (!supabaseUrl || !supabaseUrl.startsWith('http')) {
-      return NextResponse.json(
-        { error: 'Missing or invalid Supabase URL env var (SUPABASE_URL). Ensure it includes https://your-project-ref.supabase.co' },
-        { status: 500 }
-      );
-    }
-
     // Fetch recent messages (limit 50)
-    const { data, error } = await supabaseServer
+    const { data, error } = await getSupabaseServer()
       .from("messages")
       .select("id, wallet_address, sender_name, text, created_at")
       .order("created_at", { ascending: false })
@@ -122,20 +107,6 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.SUPABASE_URL;
-    if (!supabaseUrl || !supabaseUrl.startsWith('http')) {
-      return NextResponse.json(
-        { error: 'Missing or invalid Supabase URL env var (SUPABASE_URL). Ensure it includes https://your-project-ref.supabase.co' },
-        { status: 500 }
-      );
-    }
-    if (!process.env.SUPABASE_SERVICE_KEY) {
-      return NextResponse.json(
-        { error: "Supabase not configured (SUPABASE_SERVICE_KEY missing)" },
-        { status: 500 }
-      );
-    }
-
     const body = await request.json();
     const { text, walletAddress, senderName } = body;
 
@@ -193,7 +164,7 @@ export async function POST(request: NextRequest) {
       signature: null,
     };
 
-    const { data, error } = await supabaseServer.from("messages").insert([insert]).select();
+    const { data, error } = await getSupabaseServer().from("messages").insert([insert]).select();
     if (error) {
       console.error("Supabase insert error:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
