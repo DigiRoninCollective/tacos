@@ -1,6 +1,4 @@
-import { promises as fs } from "fs";
-import { join } from "path";
-import { tmpdir } from "os";
+import { getBlobStore } from "@netlify/blobs";
 import { randomUUID } from "crypto";
 
 export interface StoredMessage {
@@ -11,34 +9,19 @@ export interface StoredMessage {
   created_at: string;
 }
 
-const tmpMessagesPath = join(tmpdir(), "tacoooo-messages.json");
-const fallbackMessagesPath = join(process.cwd(), "data", "messages.json");
+const store = getBlobStore("messages");
 
-async function readPersistedMessages(): Promise<StoredMessage[]> {
-  const loadFile = async (path: string) => {
-    try {
-      const contents = await fs.readFile(path, "utf-8");
-      return JSON.parse(contents) as StoredMessage[];
-    } catch {
-      return null;
-    }
-  };
-
-  const fromTemp = await loadFile(tmpMessagesPath);
-  if (fromTemp) {
-    return fromTemp;
-  }
-
-  const fromFallback = await loadFile(fallbackMessagesPath);
-  return fromFallback ?? [];
+async function readMessages(): Promise<StoredMessage[]> {
+  const messages = await store.get("all-messages", { type: "json" });
+  return (messages as StoredMessage[]) || [];
 }
 
 async function writeMessages(messages: StoredMessage[]) {
-  await fs.writeFile(tmpMessagesPath, JSON.stringify(messages, null, 2), "utf-8");
+  await store.setJSON("all-messages", messages);
 }
 
 export async function fetchMessages(): Promise<StoredMessage[]> {
-  const messages = await readPersistedMessages();
+  const messages = await readMessages();
   return messages.sort((a, b) => {
     const aTime = new Date(a.created_at).getTime();
     const bTime = new Date(b.created_at).getTime();
@@ -47,7 +30,7 @@ export async function fetchMessages(): Promise<StoredMessage[]> {
 }
 
 export async function appendMessage(payload: Omit<StoredMessage, "id" | "created_at">): Promise<StoredMessage> {
-  const messages = await readPersistedMessages();
+  const messages = await readMessages();
   const newMessage: StoredMessage = {
     id: randomUUID(),
     created_at: new Date().toISOString(),

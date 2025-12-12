@@ -30,7 +30,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ holder: false, error: "GATING_TOKEN_MINT is not configured on the server" }, { status: 500 });
     }
 
-    const rpcUrl = process.env.SOLANA_RPC_URL || DEFAULT_SOLANA_RPC_URL;
+    const envRpcUrl = process.env.SOLANA_RPC_URL;
+    const rpcUrl =
+      envRpcUrl && envRpcUrl.trim().startsWith("http")
+        ? envRpcUrl.trim()
+        : DEFAULT_SOLANA_RPC_URL;
     console.log(`Using RPC URL: ${rpcUrl}`);
 
     let connection: Connection;
