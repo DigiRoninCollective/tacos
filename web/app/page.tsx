@@ -54,36 +54,6 @@ export default function Home() {
                 <video className="w-full h-full object-cover" src="/shoorer.mp4" poster="/image_2025-12-11_16-20-18.png" autoPlay muted loop playsInline preload="metadata" />
               </div>
             </div>
-            {/* Chat box inserted below videos for quick access */}
-            <div className="mt-8">
-              <WarRoom isVerified={isAddressVerified} walletAddress={verifiedAddress || undefined} />
-            </div>
-          </div>
-        </section>
-
-        <section className="mx-auto mt-16 max-w-5xl space-y-6">
-          <div className="grid gap-6 rounded-3xl border border-white/10 bg-white/5 px-6 py-8 shadow-[0_0_40px_rgba(0,0,0,0.2)] backdrop-blur">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <p className="text-sm uppercase tracking-[0.4em] text-teal-200/70">Wallet desk</p>
-                <p className="text-xl font-semibold text-white">Phantom &amp; Solflare ready</p>
-              </div>
-              <div className="flex gap-3">
-                <Link
-                  href="/api/contract-metadata"
-                  className="rounded-full border border-teal-400/60 px-4 py-2 text-xs font-semibold uppercase tracking-[0.4em] text-teal-100 transition hover:border-teal-200/90"
-                >
-                  metadata
-                </Link>
-                <Link
-                  href="#war-room"
-                  className="rounded-full bg-gradient-to-br from-teal-400/90 to-purple-500/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.4em] text-black shadow-lg shadow-teal-500/40"
-                >
-                  war room
-                </Link>
-              </div>
-            </div>
-            <AddressVerifier onVerificationChange={handleAddressVerificationChange} />
           </div>
         </section>
 
@@ -95,7 +65,11 @@ export default function Home() {
               <p className="text-white/70">Token-gated chat for verified holders. Message storage powered by Supabase.</p>
             </div>
           </div>
-          <WarRoom isVerified={isAddressVerified} walletAddress={verifiedAddress || undefined} />
+          {isAddressVerified ? (
+            <WarRoom isVerified={isAddressVerified} walletAddress={verifiedAddress || undefined} />
+          ) : (
+            <AddressVerifier onVerificationChange={handleAddressVerificationChange} />
+          )}
         </section>
 
         
