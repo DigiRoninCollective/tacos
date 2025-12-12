@@ -1,5 +1,7 @@
 # Supabase Setup for T.A.C.O.S War Room
 
+> ⚠️ Supabase is no longer required for the War Room endpoints — the app now uses a lightweight JSON-backed store. Keep reading only if you need to reference the old Supabase schema or env vars for another project.
+
 ## Create the Messages Table
 
 After creating your Supabase project and getting the credentials, you need to create the `messages` table.

@@ -4,13 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
  *
  * Fetch all messages from the War Room.
  *
- * TODO: Implement message fetching:
- * 1. Connect to Supabase/Firebase database
- * 2. Query messages table with pagination (limit 50, order by timestamp DESC)
- * 3. Include sender name, wallet address, message text, timestamp
- * 4. Add optional filtering by date range or user wallet
- * 5. Implement caching with Redis or Next.js cache
- *
  * Response format:
  * {
  *   messages: [
@@ -25,16 +18,8 @@ import { NextRequest, NextResponse } from "next/server";
  *   count: number,
  * }
  */
-import { getSupabaseServer } from "@/lib/supabaseServer";
 import { Connection, PublicKey } from "@solana/web3.js";
-
-interface SupabaseMessage {
-  id: string;
-  wallet_address: string;
-  sender_name: string;
-  text: string;
-  created_at: string;
-}
+import { appendMessage, fetchMessages } from "@/lib/messageStore";
 
 interface MessageResponse {
   id: string;
@@ -47,18 +32,9 @@ interface MessageResponse {
 export async function GET() {
   try {
     // Fetch recent messages (limit 50)
-    const { data, error } = await getSupabaseServer()
-      .from("messages")
-      .select("id, wallet_address, sender_name, text, created_at")
-      .order("created_at", { ascending: false })
-      .limit(50);
-
-    if (error) {
-      console.error("Supabase GET error:", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    const messages: MessageResponse[] = (data as SupabaseMessage[] || []).map((r) => ({
+    const data = await fetchMessages();
+    const limited = (data ?? []).slice(0, 50);
+    const messages: MessageResponse[] = limited.map((r) => ({
       id: r.id,
       sender: r.sender_name,
       walletAddress: r.wallet_address,
@@ -90,9 +66,8 @@ export async function GET() {
  * 1. Verify wallet signature (use tweetnacl or @solana/web3.js)
  * 2. Validate message content (length, format, rate limiting)
  * 3. Verify wallet holds the gating token (on-chain check via RPC)
- * 4. Insert message into Supabase/Firebase database
- * 5. Trigger real-time notification to connected clients
- * 6. Return saved message with generated ID
+ * 4. Persist message to the local JSON store
+ * 5. Return the saved message with generated ID
  *
  * Response format:
  * {
@@ -131,7 +106,7 @@ export async function POST(request: NextRequest) {
     try {
       owner = new PublicKey(walletAddress);
       mint = new PublicKey(mintEnv);
-    } catch (err) {
+    } catch {
       return NextResponse.json({ error: "Invalid public key format" }, { status: 400 });
     }
 
@@ -146,7 +121,7 @@ export async function POST(request: NextRequest) {
           else if (tokenAmount.amount && tokenAmount.decimals != null)
             balance += Number(tokenAmount.amount) / Math.pow(10, tokenAmount.decimals);
         }
-      } catch (e) {
+      } catch {
         // ignore parse errors
       }
     }
@@ -164,13 +139,7 @@ export async function POST(request: NextRequest) {
       signature: null,
     };
 
-    const { data, error } = await getSupabaseServer().from("messages").insert([insert]).select();
-    if (error) {
-      console.error("Supabase insert error:", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    const saved = (data && data[0]) || null;
+    const saved = await appendMessage(insert);
     return NextResponse.json({ message: saved }, { status: 201 });
   } catch (error) {
     console.error("POST /api/messages error:", error);

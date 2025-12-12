@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import supabase from "@/lib/supabaseClient";
+import { useState, useEffect } from "react";
 
 type Message = {
   id: string;
@@ -21,69 +20,36 @@ export default function WarRoom({ isVerified, walletAddress }: WarRoomProps) {
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
-  const [realtimeConnected, setRealtimeConnected] = useState(false);
-  const subscriptionRef = useRef<{ unsubscribe: () => void } | null>(null);
 
   useEffect(() => {
-    // Fetch initial messages (server-side API) and then subscribe via Supabase realtime
+    let isMounted = true;
     const fetchMessages = async () => {
       setIsFetching(true);
       try {
         const response = await fetch("/api/messages");
         if (response.ok) {
           const data = await response.json();
-          setMessages(data.messages || []);
+          if (isMounted) {
+            setMessages(data.messages || []);
+          }
         }
       } catch (error) {
         console.error("Failed to fetch messages:", error);
       } finally {
-        setIsFetching(false);
-      }
-    };
-
-    const setupRealtime = () => {
-      if (!supabase || !supabase.channel) return false;
-
-      try {
-        const channel = supabase.channel("public:messages");
-
-        channel.on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload: any) => {
-          const newRow = payload.new as Record<string, any>;
-          if (!newRow) return;
-          const msg: Message = {
-            id: String(newRow.id),
-            sender: newRow.sender_name || "Anon",
-            walletAddress: newRow.wallet_address || "",
-            text: newRow.text || "",
-            timestamp: newRow.created_at || newRow.timestamp || new Date().toISOString(),
-          };
-          setMessages((prev) => [...prev, msg]);
-        });
-
-        channel.subscribe();
-        subscriptionRef.current = channel;
-        setRealtimeConnected(true);
-        return true;
-      } catch (err) {
-        console.warn("Supabase realtime setup failed", err);
-        setRealtimeConnected(false);
-        return false;
+        if (isMounted) {
+          setIsFetching(false);
+        }
       }
     };
 
     if (isVerified) {
       fetchMessages();
-      setupRealtime();
+    } else {
+      setMessages([]);
     }
 
     return () => {
-      try {
-        if (subscriptionRef.current && subscriptionRef.current.unsubscribe) {
-          subscriptionRef.current.unsubscribe();
-        }
-      } catch (e) {
-        // ignore
-      }
+      isMounted = false;
     };
   }, [isVerified]);
 
@@ -166,9 +132,6 @@ export default function WarRoom({ isVerified, walletAddress }: WarRoomProps) {
       {/* Message Input */}
       {isVerified ? (
         <div className="mt-5 space-y-2">
-          {!realtimeConnected && (
-            <p className="text-xs text-yellow-200/60 px-2">ℹ️ Realtime disabled (check env vars for live updates)</p>
-          )}
           <div className="flex gap-2">
             <input
               type="text"
