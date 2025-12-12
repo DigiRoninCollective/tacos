@@ -8,6 +8,8 @@ import { Connection, PublicKey } from "@solana/web3.js";
  * of the gating SPL token (mint provided in `process.env.GATING_TOKEN_MINT`).
  * Returns a small, idempotent JSON object { holder: boolean, balance?: number, error?: string }.
  */
+const DEFAULT_SOLANA_RPC_URL = "https://mainnet.helius-rpc.com/?api-key=c3e649c2-a7eb-4b99-94a8-f092553c3283";
+
 export async function POST(request: NextRequest) {
   try {
     console.log("POST /api/verify-holder");
@@ -28,7 +30,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ holder: false, error: "GATING_TOKEN_MINT is not configured on the server" }, { status: 500 });
     }
 
-    const rpcUrl = process.env.SOLANA_RPC_URL || "https://api.mainnet-beta.solana.com";
+    const rpcUrl = process.env.SOLANA_RPC_URL || DEFAULT_SOLANA_RPC_URL;
     console.log(`Using RPC URL: ${rpcUrl}`);
 
     let connection: Connection;
